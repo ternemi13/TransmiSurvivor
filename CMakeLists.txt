@@ -4,7 +4,7 @@ project(TransmiSurvivor)
 
 set(CMAKE_CXX_STANDARD 17)
 
-set(SFML_DIR "C:/Librerias/SFML-2.6.1/lib/cmake/SFML")
+set(SFML_DIR "${CMAKE_SOURCE_DIR}/external/SFML-2.6.1/lib/cmake/SFML")
 
 find_package(SFML 2.6 COMPONENTS graphics window system audio REQUIRED)
 
@@ -24,4 +24,13 @@ target_link_libraries(TransmiSurvivor
     sfml-window
     sfml-system
     sfml-audio
+)
+
+add_custom_command(TARGET TransmiSurvivor POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_SOURCE_DIR}/external/SFML-2.6.1/bin/sfml-graphics-d-2.dll"
+        "${CMAKE_SOURCE_DIR}/external/SFML-2.6.1/bin/sfml-window-d-2.dll"
+        "${CMAKE_SOURCE_DIR}/external/SFML-2.6.1/bin/sfml-system-d-2.dll"
+        "${CMAKE_SOURCE_DIR}/external/SFML-2.6.1/bin/sfml-audio-d-2.dll"
+        $<TARGET_FILE_DIR:TransmiSurvivor>
 )
