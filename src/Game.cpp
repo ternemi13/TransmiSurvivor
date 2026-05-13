@@ -3,6 +3,9 @@
 Game::Game()
     : m_window(sf::VideoMode(1280, 720), "Transmi Survivor")
 {
+    m_view.setSize(1280.0f, 720.0f);
+
+    m_view.setCenter(640.0f, 360.0f);
 }
 
 void Game::run()
@@ -35,10 +38,12 @@ void Game::processEvents()
 void Game::update()
 {
     m_player.update(m_deltaTime);
+    m_view.setCenter(m_player.getPosition());
 }
 void Game::render()
 {
     m_window.clear(sf::Color::Black);
+    m_window.setView(m_view);
  m_player.render(m_window);
     m_window.display();
 }

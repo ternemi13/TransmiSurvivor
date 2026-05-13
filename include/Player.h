@@ -17,6 +17,8 @@ sf::Texture m_rightTexture;
 
 sf::Sprite m_sprite;
 
+
+
     float m_speed;
 
 public:
@@ -28,4 +30,6 @@ public:
     void update(float deltaTime);
 
     void render(sf::RenderWindow& window);
+
+    sf::Vector2f getPosition() const;
 };

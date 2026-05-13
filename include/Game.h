@@ -9,6 +9,7 @@ private:
 
     sf::RenderWindow m_window;
     sf::Clock m_clock;
+    sf::View m_view;
 
 float m_deltaTime;
 
