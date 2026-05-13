@@ -11,6 +11,16 @@ private:
     sf::Clock m_clock;
     sf::View m_view;
 
+    sf::RectangleShape m_floor;
+
+sf::RectangleShape m_topWall;
+
+sf::RectangleShape m_bottomWall;
+
+sf::RectangleShape m_leftWall;
+
+sf::RectangleShape m_rightWall;
+
 float m_deltaTime;
 
     Player m_player;
