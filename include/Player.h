@@ -7,6 +7,13 @@ class Player
 private:
 
    sf::Texture m_texture;
+   sf::Texture m_frontTexture;
+
+sf::Texture m_backTexture;
+
+sf::Texture m_leftTexture;
+
+sf::Texture m_rightTexture;
 
 sf::Sprite m_sprite;
 
