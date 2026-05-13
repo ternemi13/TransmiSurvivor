@@ -17,6 +17,7 @@ add_executable(TransmiSurvivor
     src/Enemy.cpp
     src/Room.cpp
     src/Renderer.cpp
+    
 )
 
 target_link_libraries(TransmiSurvivor
