@@ -2,35 +2,39 @@
 
 Player::Player()
 {
-    m_shape.setSize(sf::Vector2f(50.0f, 50.0f));
+    m_texture.loadFromFile("../assets/sprites/player/player.png");
 
-    m_shape.setFillColor(sf::Color::Green);
+m_sprite.setTexture(m_texture);
 
-    m_shape.setPosition(200.0f, 200.0f);
+m_sprite.setPosition(200.0f, 200.0f);
 
-    m_speed = 0.3f;
+m_sprite.setScale(0.2f, 0.2f);
+
+m_speed = 0.08f;
+
+    m_speed = 0.1f;
 }
 
 void Player::handleInput()
 {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
     {
-        m_shape.move(0.0f, -m_speed);
+        m_sprite.move(0.0f, -m_speed);
     }
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
     {
-        m_shape.move(0.0f, m_speed);
+        m_sprite.move(0.0f, m_speed);
     }
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
     {
-        m_shape.move(-m_speed, 0.0f);
+       m_sprite.move(-m_speed, 0.0f);
     }
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
     {
-        m_shape.move(m_speed, 0.0f);
+        m_sprite.move(m_speed, 0.0f);
     }
 }
 
@@ -41,5 +45,5 @@ void Player::update()
 
 void Player::render(sf::RenderWindow& window)
 {
-    window.draw(m_shape);
+    window.draw(m_sprite);
 }

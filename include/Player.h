@@ -6,7 +6,9 @@ class Player
 {
 private:
 
-    sf::RectangleShape m_shape;
+   sf::Texture m_texture;
+
+sf::Sprite m_sprite;
 
     float m_speed;
 
