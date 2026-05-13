@@ -25,7 +25,7 @@ public:
 
     void handleInput();
 
-    void update();
+    void update(float deltaTime);
 
     void render(sf::RenderWindow& window);
 };

@@ -9,6 +9,8 @@ void Game::run()
 {
     while (m_window.isOpen())
     {
+
+        m_deltaTime = m_clock.restart().asSeconds();
         processEvents();
 
         update();
@@ -32,7 +34,7 @@ void Game::processEvents()
 
 void Game::update()
 {
-    m_player.update();
+    m_player.update(m_deltaTime);
 }
 void Game::render()
 {

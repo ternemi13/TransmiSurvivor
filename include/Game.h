@@ -8,6 +8,9 @@ class Game
 private:
 
     sf::RenderWindow m_window;
+    sf::Clock m_clock;
+
+float m_deltaTime;
 
     Player m_player;
 

@@ -47,11 +47,12 @@ void Player::handleInput()
     }
 }
 
-void Player::update()
+void Player::update(float deltaTime)
 {
+    m_speed = 250.0f * deltaTime;
+
     handleInput();
 }
-
 void Player::render(sf::RenderWindow& window)
 {
     window.draw(m_sprite);
