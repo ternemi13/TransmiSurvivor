@@ -81,7 +81,25 @@ void Game::processEvents()
 
 void Game::update()
 {
-    m_player.update(m_deltaTime);
+    //m_player.update(m_deltaTime);
+
+    sf::Vector2f oldPosition = m_player.getPosition();
+
+m_player.update(m_deltaTime);
+
+
+
+if (m_player.getBounds().intersects(m_topWall.getGlobalBounds()) ||
+    m_player.getBounds().intersects(m_bottomWall.getGlobalBounds()) ||
+    m_player.getBounds().intersects(m_leftWall.getGlobalBounds()) ||
+    m_player.getBounds().intersects(m_rightWall.getGlobalBounds()))
+{
+    m_player.setPosition(oldPosition);
+}
+
+
+
+m_view.setCenter(m_player.getPosition());
     m_view.setCenter(m_player.getPosition());
 }
 void Game::render()

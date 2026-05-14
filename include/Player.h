@@ -25,6 +25,9 @@ public:
 
     Player();
 
+
+    void setPosition(sf::Vector2f position);
+
     void handleInput();
 
     void update(float deltaTime);
@@ -32,4 +35,5 @@ public:
     void render(sf::RenderWindow& window);
 
     sf::Vector2f getPosition() const;
+    sf::FloatRect getBounds() const;
 };
