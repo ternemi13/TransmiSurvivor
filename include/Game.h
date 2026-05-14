@@ -21,6 +21,10 @@ sf::RectangleShape m_leftWall;
 
 sf::RectangleShape m_rightWall;
 
+sf::Texture m_mapTexture;
+
+sf::Sprite m_mapSprite;
+
 float m_deltaTime;
 
     Player m_player;

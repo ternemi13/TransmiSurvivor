@@ -7,6 +7,12 @@ Game::Game()
 
     m_view.setCenter(640.0f, 360.0f);
 
+    m_mapTexture.loadFromFile("../assets/maps/station.png");
+
+m_mapSprite.setTexture(m_mapTexture);
+
+m_mapSprite.setScale(0.4f, 0.4f);
+
    m_floor.setSize(sf::Vector2f(2000.0f, 2000.0f));
 
 m_floor.setFillColor(sf::Color(50, 50, 50));
@@ -82,15 +88,18 @@ void Game::render()
 {
     m_window.clear(sf::Color::Black);
     m_window.setView(m_view);
-    m_window.draw(m_floor);
+    m_window.draw(m_mapSprite);
 
-m_window.draw(m_topWall);
+//m_window.draw(m_floor);
 
-m_window.draw(m_bottomWall);
+//m_window.draw(m_topWall);
 
-m_window.draw(m_leftWall);
+//m_window.draw(m_bottomWall);
 
-m_window.draw(m_rightWall);
+//m_window.draw(m_leftWall);
+
+//m_window.draw(m_rightWall);
+
 
  m_player.render(m_window);
     m_window.display();
