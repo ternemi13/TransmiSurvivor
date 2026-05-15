@@ -2,6 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 #include "Player.h"
+#include "Room.h"
 
 class Game
 {
@@ -9,11 +10,11 @@ private:
     sf::RenderWindow m_window;
     sf::Clock m_clock;
     sf::View m_view;
+    sf::FloatRect m_doorArea;
 
-    sf::FloatRect m_playableArea;
-    sf::Texture m_mapTexture;
-    sf::Sprite m_mapSprite;
-
+    Room m_entranceRoom;
+    Room m_platformRoom;
+    Room* m_currentRoom;
     float m_deltaTime;
 
     Player m_player;
@@ -24,8 +25,13 @@ private:
 
     void render();
 
+    void setupRooms();
+
+    void changeToPlatformRoom();
+
 public:
     Game();
+    ~Game();
 
     void run();
 };
