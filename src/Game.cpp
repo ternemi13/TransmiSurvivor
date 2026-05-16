@@ -21,12 +21,17 @@ Game::~Game()
 
 void Game::setupRooms()
 {
+    const float segmentWidth = 409.6f;
+    const float mapScale = 0.4f;
+    const float cabinRotation = 180.0f;
+    const float wagonRotation = -90.0f;
+
     m_entranceRoom.setRoomType(Room::Entrance);
     m_entranceRoom.addSegment(
         "../assets/maps/station/entrance.png",
         0.0f,
         0.0f,
-        0.4f
+        mapScale
     );
 
     m_platformRoom.setRoomType(Room::Platform);
@@ -34,21 +39,118 @@ void Game::setupRooms()
         "../assets/maps/station/platform.png",
         0.0f,
         0.0f,
-        0.4f
+        mapScale
     );
 
     m_platformRoom.addSegment(
         "../assets/maps/station/platform.png",
-        409.6f,
+        segmentWidth,
         0.0f,
-        0.4f
+        mapScale
     );
 
     m_platformRoom.addSegment(
         "../assets/maps/station/platform.png",
-        819.2f,
+        segmentWidth * 2.0f,
         0.0f,
-        0.4f
+        mapScale
+    );
+
+    m_wagonRoom.setRoomType(Room::Wagon);
+    m_wagonRoom.addSegment(
+        "../assets/maps/wagon/cabin.png",
+        0.0f,
+        0.0f,
+        mapScale,
+        cabinRotation
+    );
+
+    m_wagonRoom.addSegment(
+        "../assets/maps/wagon/interior.png",
+        segmentWidth,
+        0.0f,
+        mapScale,
+        wagonRotation
+    );
+
+    m_wagonRoom.addSegment(
+        "../assets/maps/wagon/interior.png",
+        segmentWidth * 2.0f,
+        0.0f,
+        mapScale,
+        wagonRotation
+    );
+
+    m_wagonRoom.addSegment(
+        "../assets/maps/wagon/interior.png",
+        segmentWidth * 3.0f,
+        0.0f,
+        mapScale,
+        wagonRotation
+    );
+
+    m_wagonRoom.addSegment(
+        "../assets/maps/wagon/connector.png",
+        segmentWidth * 4.0f,
+        0.0f,
+        mapScale,
+        wagonRotation
+    );
+
+    m_wagonRoom.addSegment(
+        "../assets/maps/wagon/interior.png",
+        segmentWidth * 5.0f,
+        0.0f,
+        mapScale,
+        wagonRotation
+    );
+
+    m_wagonRoom.addSegment(
+        "../assets/maps/wagon/interior.png",
+        segmentWidth * 6.0f,
+        0.0f,
+        mapScale,
+        wagonRotation
+    );
+
+    m_wagonRoom.addSegment(
+        "../assets/maps/wagon/interior.png",
+        segmentWidth * 7.0f,
+        0.0f,
+        mapScale,
+        wagonRotation
+    );
+
+    m_wagonRoom.addSegment(
+        "../assets/maps/wagon/connector.png",
+        segmentWidth * 8.0f,
+        0.0f,
+        mapScale,
+        wagonRotation
+    );
+
+    m_wagonRoom.addSegment(
+        "../assets/maps/wagon/interior.png",
+        segmentWidth * 9.0f,
+        0.0f,
+        mapScale,
+        wagonRotation
+    );
+
+    m_wagonRoom.addSegment(
+        "../assets/maps/wagon/interior.png",
+        segmentWidth * 10.0f,
+        0.0f,
+        mapScale,
+        wagonRotation
+    );
+
+    m_wagonRoom.addSegment(
+        "../assets/maps/wagon/interior.png",
+        segmentWidth * 11.0f,
+        0.0f,
+        mapScale,
+        wagonRotation
     );
 
     m_doorArea = sf::FloatRect(
@@ -57,12 +159,56 @@ void Game::setupRooms()
         110.0f,
         30.0f
     );
+
+    const std::array<sf::FloatRect, 3> topDoorsInSegment = {
+        sf::FloatRect(15.0f, 128.0f, 35.0f, 28.0f),
+        sf::FloatRect(150.0f, 128.0f, 110.0f, 28.0f),
+        sf::FloatRect(365.0f, 128.0f, 30.0f, 28.0f)
+    };
+
+    int doorIndex = 0;
+    for (int segmentIndex = 0; segmentIndex < 3; segmentIndex++)
+    {
+        for (const sf::FloatRect& localDoor : topDoorsInSegment)
+        {
+            m_platformDoorAreas[doorIndex] = sf::FloatRect(
+                localDoor.left + segmentWidth * segmentIndex,
+                localDoor.top,
+                localDoor.width,
+                localDoor.height
+            );
+
+            doorIndex++;
+        }
+    }
 }
 
 void Game::changeToPlatformRoom()
 {
     m_currentRoom = &m_platformRoom;
     m_player.setPosition(sf::Vector2f(200.0f, 200.0f));
+    m_view.setCenter(m_player.getPosition());
+}
+
+void Game::changeToWagonRoom(int platformDoorIndex)
+{
+    const float segmentWidth = 409.6f;
+    const float spawnY = 210.0f;
+
+    m_currentRoom = &m_wagonRoom;
+
+    if (platformDoorIndex == 0)
+    {
+        m_player.setPosition(sf::Vector2f(200.0f, spawnY));
+    }
+    else
+    {
+        const std::array<int, 9> interiorSegments = {1, 2, 3, 5, 6, 7, 9, 10, 11};
+        const int interiorIndex = (platformDoorIndex - 1) % interiorSegments.size();
+        const float interiorStartX = segmentWidth * interiorSegments[interiorIndex];
+        m_player.setPosition(sf::Vector2f(interiorStartX + 200.0f, spawnY));
+    }
+
     m_view.setCenter(m_player.getPosition());
 }
 
@@ -97,6 +243,10 @@ void Game::update()
     m_player.update(m_deltaTime);
 
     sf::FloatRect playerBounds = m_player.getBounds();
+    const sf::Vector2f playerFeet(
+        playerBounds.left + playerBounds.width * 0.5f,
+        playerBounds.top + playerBounds.height
+    );
     sf::FloatRect playableArea = m_currentRoom->getPlayableArea();
 
     const bool outsidePlayableArea =
@@ -112,7 +262,6 @@ void Game::update()
         m_player.setPosition(oldPosition);
     }
 
-    m_view.setCenter(m_player.getPosition());
     if (m_currentRoom->getRoomType() == Room::Entrance)
     {
         if (m_player.getBounds().intersects(m_doorArea))
@@ -120,6 +269,19 @@ void Game::update()
             changeToPlatformRoom();
         }
     }
+    else if (m_currentRoom->getRoomType() == Room::Platform)
+    {
+        for (int doorIndex = 0; doorIndex < PLATFORM_DOOR_COUNT; doorIndex++)
+        {
+            if (m_platformDoorAreas[doorIndex].contains(playerFeet))
+            {
+                changeToWagonRoom(doorIndex);
+                break;
+            }
+        }
+    }
+
+    m_view.setCenter(m_player.getPosition());
 }
 
 void Game::render()

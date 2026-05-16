@@ -36,7 +36,8 @@ public:
     void addSegment(const char* path,
                 float x,
                 float y,
-                float scale);
+                float scale,
+                float rotation = 0.0f);
 
     
 void setRoomType(RoomType type);
