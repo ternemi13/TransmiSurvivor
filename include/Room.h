@@ -37,7 +37,8 @@ public:
                 float x,
                 float y,
                 float scale,
-                float rotation = 0.0f);
+                float rotation = 0.0f,
+                sf::IntRect textureRect = sf::IntRect());
 
     
 void setRoomType(RoomType type);

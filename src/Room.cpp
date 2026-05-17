@@ -10,7 +10,8 @@ void Room::addSegment(const char* path,
                       float x,
                       float y,
                       float scale,
-                      float rotation)
+                      float rotation,
+                      sf::IntRect textureRect)
 {
     if (m_segmentCount >= MAX_SEGMENTS)
     {
@@ -23,31 +24,32 @@ void Room::addSegment(const char* path,
     }
 
     sf::Sprite& sprite = m_mapSprites[m_segmentCount];
-    sf::Texture& texture = m_mapTextures[m_segmentCount];
 
     sprite.setTexture(
         m_mapTextures[m_segmentCount]
     );
 
+    if (textureRect.width > 0 && textureRect.height > 0)
+    {
+        sprite.setTextureRect(textureRect);
+    }
+
     sprite.setScale(scale, scale);
 
     if (rotation != 0.0f)
     {
-        const sf::Vector2u textureSize = texture.getSize();
-        const float scaledWidth = static_cast<float>(textureSize.x) * scale;
-        const float scaledHeight = static_cast<float>(textureSize.y) * scale;
+        const sf::FloatRect localBounds = sprite.getLocalBounds();
 
         sprite.setOrigin(
-            static_cast<float>(textureSize.x) * 0.5f,
-            static_cast<float>(textureSize.y) * 0.5f
+            localBounds.left + localBounds.width * 0.5f,
+            localBounds.top + localBounds.height * 0.5f
         );
 
-        sprite.setPosition(
-            x + scaledWidth * 0.5f,
-            y + scaledHeight * 0.5f
-        );
-
+        sprite.setPosition(x, y);
         sprite.setRotation(rotation);
+
+        const sf::FloatRect rotatedBounds = sprite.getGlobalBounds();
+        sprite.move(x - rotatedBounds.left, y - rotatedBounds.top);
     }
     else
     {

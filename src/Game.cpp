@@ -23,6 +23,8 @@ void Game::setupRooms()
 {
     const float segmentWidth = 409.6f;
     const float mapScale = 0.4f;
+    const float doorInteriorScale = segmentWidth / 1125.0f;
+    const sf::IntRect doorInteriorRect(68, 68, 1125, 1125);
     const float cabinRotation = 180.0f;
     const float wagonRotation = -90.0f;
 
@@ -66,11 +68,12 @@ void Game::setupRooms()
     );
 
     m_wagonRoom.addSegment(
-        "../assets/maps/wagon/interior.png",
+        "../assets/maps/wagon/interiorpuerta.png",
         segmentWidth,
         0.0f,
-        mapScale,
-        wagonRotation
+        doorInteriorScale,
+        wagonRotation,
+        doorInteriorRect
     );
 
     m_wagonRoom.addSegment(
@@ -106,11 +109,12 @@ void Game::setupRooms()
     );
 
     m_wagonRoom.addSegment(
-        "../assets/maps/wagon/interior.png",
+        "../assets/maps/wagon/interiorpuerta.png",
         segmentWidth * 6.0f,
         0.0f,
-        mapScale,
-        wagonRotation
+        doorInteriorScale,
+        wagonRotation,
+        doorInteriorRect
     );
 
     m_wagonRoom.addSegment(
@@ -138,11 +142,12 @@ void Game::setupRooms()
     );
 
     m_wagonRoom.addSegment(
-        "../assets/maps/wagon/interior.png",
+        "../assets/maps/wagon/interiorpuerta.png",
         segmentWidth * 10.0f,
         0.0f,
-        mapScale,
-        wagonRotation
+        doorInteriorScale,
+        wagonRotation,
+        doorInteriorRect
     );
 
     m_wagonRoom.addSegment(
@@ -197,17 +202,11 @@ void Game::changeToWagonRoom(int platformDoorIndex)
 
     m_currentRoom = &m_wagonRoom;
 
-    if (platformDoorIndex == 0)
-    {
-        m_player.setPosition(sf::Vector2f(200.0f, spawnY));
-    }
-    else
-    {
-        const std::array<int, 9> interiorSegments = {1, 2, 3, 5, 6, 7, 9, 10, 11};
-        const int interiorIndex = (platformDoorIndex - 1) % interiorSegments.size();
-        const float interiorStartX = segmentWidth * interiorSegments[interiorIndex];
-        m_player.setPosition(sf::Vector2f(interiorStartX + 200.0f, spawnY));
-    }
+    const std::array<int, 3> doorInteriorSegments = {1, 6, 10};
+    const int doorInteriorIndex = platformDoorIndex / 3;
+    const float interiorStartX = segmentWidth * doorInteriorSegments[doorInteriorIndex];
+
+    m_player.setPosition(sf::Vector2f(interiorStartX + 200.0f, spawnY));
 
     m_view.setCenter(m_player.getPosition());
 }
