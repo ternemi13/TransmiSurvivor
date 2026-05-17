@@ -4,6 +4,7 @@
 
 Enemy::Enemy()
     : m_speed(85.0f),
+      m_health(0),
       m_active(false)
 {
 }
@@ -19,6 +20,7 @@ bool Enemy::spawn(const char* spritePath, sf::Vector2f position)
     m_sprite.setTexture(m_texture);
     m_sprite.setPosition(position);
     m_sprite.setScale(0.12f, 0.12f);
+    m_health = 3;
     m_active = true;
 
     return true;
@@ -59,6 +61,22 @@ void Enemy::update(float deltaTime, sf::Vector2f targetPosition)
         direction.x * m_speed * deltaTime,
         direction.y * m_speed * deltaTime
     );
+}
+
+void Enemy::takeDamage(int damage)
+{
+    if (!m_active)
+    {
+        return;
+    }
+
+    m_health -= damage;
+
+    if (m_health <= 0)
+    {
+        m_health = 0;
+        m_active = false;
+    }
 }
 
 void Enemy::render(sf::RenderWindow& window)

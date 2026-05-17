@@ -27,6 +27,7 @@ Player::Player()
     m_attackFrameTime = 0.08f;
     m_attackTimer = 0.0f;
     m_attackFrame = 0;
+    m_attackId = 0;
     m_isAttacking = false;
     m_attackKeyWasPressed = false;
     m_horizontalDirection = Right;
@@ -116,6 +117,46 @@ sf::FloatRect Player::getBounds() const
     return m_sprite.getGlobalBounds();
 }
 
+sf::FloatRect Player::getAttackBounds() const
+{
+    if (!m_isAttacking)
+    {
+        return sf::FloatRect();
+    }
+
+    const sf::FloatRect playerBounds = m_sprite.getGlobalBounds();
+    const float attackWidth = playerBounds.width * 0.52f;
+    const float attackHeight = playerBounds.height * 0.52f;
+    const float attackTop = playerBounds.top + playerBounds.height * 0.24f;
+
+    if (m_horizontalDirection == Left)
+    {
+        return sf::FloatRect(
+            playerBounds.left,
+            attackTop,
+            attackWidth,
+            attackHeight
+        );
+    }
+
+    return sf::FloatRect(
+        playerBounds.left + playerBounds.width - attackWidth,
+        attackTop,
+        attackWidth,
+        attackHeight
+    );
+}
+
+bool Player::isAttacking() const
+{
+    return m_isAttacking;
+}
+
+int Player::getAttackId() const
+{
+    return m_attackId;
+}
+
 void Player::setPosition(sf::Vector2f position)
 {
     m_sprite.setPosition(position);
@@ -130,6 +171,7 @@ void Player::startAttack()
         m_isAttacking = true;
         m_attackTimer = 0.0f;
         m_attackFrame = 0;
+        m_attackId++;
         setAttackFrameTexture();
     }
 

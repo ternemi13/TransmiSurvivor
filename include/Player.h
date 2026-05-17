@@ -30,6 +30,7 @@ private:
     float m_attackFrameTime;
     float m_attackTimer;
     int m_attackFrame;
+    int m_attackId;
     bool m_isAttacking;
     bool m_attackKeyWasPressed;
     HorizontalDirection m_horizontalDirection;
@@ -52,4 +53,7 @@ public:
 
     sf::Vector2f getPosition() const;
     sf::FloatRect getBounds() const;
+    sf::FloatRect getAttackBounds() const;
+    bool isAttacking() const;
+    int getAttackId() const;
 };

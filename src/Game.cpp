@@ -11,6 +11,7 @@ Game::Game()
       m_enemyContactDamage(10.0f),
       m_damageCooldown(0.8f),
       m_damageCooldownTimer(0.0f),
+      m_playerAttackDamage(1),
       m_enemyCount(0),
       m_randomEngine(std::random_device{}())
 {
@@ -251,6 +252,8 @@ void Game::spawnWagonEnemies()
             enemySprites[enemyDistribution(m_randomEngine)],
             enemyPosition
         );
+
+        m_enemyLastHitAttackIds[i] = -1;
     }
 }
 
@@ -347,6 +350,23 @@ void Game::update()
         for (int i = 0; i < m_enemyCount; i++)
         {
             m_enemies[i].update(m_deltaTime, playerCenter);
+        }
+
+        if (m_playerHealth > 0.0f && m_player.isAttacking())
+        {
+            const sf::FloatRect attackBounds = m_player.getAttackBounds();
+            const int attackId = m_player.getAttackId();
+
+            for (int i = 0; i < m_enemyCount; i++)
+            {
+                if (m_enemies[i].isActive() &&
+                    m_enemyLastHitAttackIds[i] != attackId &&
+                    m_enemies[i].getBounds().intersects(attackBounds))
+                {
+                    m_enemies[i].takeDamage(m_playerAttackDamage);
+                    m_enemyLastHitAttackIds[i] = attackId;
+                }
+            }
         }
 
         if (m_damageCooldownTimer > 0.0f)

@@ -21,6 +21,7 @@ private:
     static const int MAX_ENEMIES = 8;
     std::array<sf::FloatRect, PLATFORM_DOOR_COUNT> m_platformDoorAreas;
     std::array<Enemy, MAX_ENEMIES> m_enemies;
+    std::array<int, MAX_ENEMIES> m_enemyLastHitAttackIds;
 
     Room m_entranceRoom;
     Room m_platformRoom;
@@ -36,6 +37,7 @@ private:
     float m_enemyContactDamage;
     float m_damageCooldown;
     float m_damageCooldownTimer;
+    int m_playerAttackDamage;
     int m_enemyCount;
     std::mt19937 m_randomEngine;
 
