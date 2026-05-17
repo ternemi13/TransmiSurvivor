@@ -282,7 +282,10 @@ void Game::update()
 {
     sf::Vector2f oldPosition = m_player.getPosition();
 
-    m_player.update(m_deltaTime);
+    if (m_playerHealth > 0.0f)
+    {
+        m_player.update(m_deltaTime);
+    }
 
     sf::FloatRect playerBounds = m_player.getBounds();
     const sf::Vector2f playerFeet(
@@ -394,7 +397,10 @@ void Game::render()
         }
     }
 
-    m_player.render(m_window);
+    if (m_playerHealth > 0.0f)
+    {
+        m_player.render(m_window);
+    }
 
     m_window.setView(m_window.getDefaultView());
     m_renderer.renderHud(
