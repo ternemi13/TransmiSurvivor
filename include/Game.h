@@ -1,8 +1,10 @@
 #pragma once
 
 #include <array>
+#include <random>
 
 #include <SFML/Graphics.hpp>
+#include "Enemy.h"
 #include "Player.h"
 #include "Renderer.h"
 #include "Room.h"
@@ -16,7 +18,9 @@ private:
     Renderer m_renderer;
     sf::FloatRect m_doorArea;
     static const int PLATFORM_DOOR_COUNT = 9;
+    static const int MAX_ENEMIES = 8;
     std::array<sf::FloatRect, PLATFORM_DOOR_COUNT> m_platformDoorAreas;
+    std::array<Enemy, MAX_ENEMIES> m_enemies;
 
     Room m_entranceRoom;
     Room m_platformRoom;
@@ -29,6 +33,8 @@ private:
     float m_playerMaxHealth;
     float m_wagonTravelTime;
     float m_wagonTravelTimer;
+    int m_enemyCount;
+    std::mt19937 m_randomEngine;
 
     Player m_player;
 
@@ -42,6 +48,7 @@ private:
 
     void changeToPlatformRoom();
     void changeToWagonRoom(int platformDoorIndex);
+    void spawnWagonEnemies();
 
 public:
     Game();

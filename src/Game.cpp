@@ -7,7 +7,9 @@ Game::Game()
       m_playerHealth(100.0f),
       m_playerMaxHealth(100.0f),
       m_wagonTravelTime(45.0f),
-      m_wagonTravelTimer(0.0f)
+      m_wagonTravelTimer(0.0f),
+      m_enemyCount(0),
+      m_randomEngine(std::random_device{}())
 {
     m_view.setSize(1280.0f, 720.0f);
     m_view.setCenter(640.0f, 360.0f);
@@ -212,8 +214,40 @@ void Game::changeToWagonRoom(int platformDoorIndex)
 
     m_player.setPosition(sf::Vector2f(interiorStartX + 200.0f, spawnY));
     m_wagonTravelTimer = m_wagonTravelTime;
+    spawnWagonEnemies();
 
     m_view.setCenter(m_player.getPosition());
+}
+
+void Game::spawnWagonEnemies()
+{
+    const float segmentWidth = 409.6f;
+    const std::array<int, 9> interiorSegments = {1, 2, 3, 5, 6, 7, 9, 10, 11};
+    const std::array<const char*, 2> enemySprites = {
+        "../assets/sprites/enemies/enemie1/front.png",
+        "../assets/sprites/enemies/enemie2/front.png"
+    };
+
+    std::uniform_int_distribution<int> segmentDistribution(0, interiorSegments.size() - 1);
+    std::uniform_int_distribution<int> enemyDistribution(0, enemySprites.size() - 1);
+    std::uniform_real_distribution<float> xDistribution(120.0f, 285.0f);
+    std::uniform_real_distribution<float> yDistribution(135.0f, 290.0f);
+
+    m_enemyCount = MAX_ENEMIES;
+
+    for (int i = 0; i < m_enemyCount; i++)
+    {
+        const int segmentIndex = interiorSegments[segmentDistribution(m_randomEngine)];
+        const sf::Vector2f enemyPosition(
+            segmentWidth * segmentIndex + xDistribution(m_randomEngine),
+            yDistribution(m_randomEngine)
+        );
+
+        m_enemies[i].spawn(
+            enemySprites[enemyDistribution(m_randomEngine)],
+            enemyPosition
+        );
+    }
 }
 
 void Game::run()
@@ -303,6 +337,15 @@ void Game::render()
     m_window.clear(sf::Color::Black);
     m_window.setView(m_view);
     m_currentRoom->render(m_window);
+
+    if (m_currentRoom->getRoomType() == Room::Wagon)
+    {
+        for (int i = 0; i < m_enemyCount; i++)
+        {
+            m_enemies[i].render(m_window);
+        }
+    }
+
     m_player.render(m_window);
 
     m_window.setView(m_window.getDefaultView());
