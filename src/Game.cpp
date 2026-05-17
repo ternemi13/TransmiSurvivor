@@ -3,7 +3,11 @@
 Game::Game()
     : m_window(sf::VideoMode(1280, 720), "Transmi Survivor"),
       m_currentRoom(nullptr),
-      m_deltaTime(0.0f)
+      m_deltaTime(0.0f),
+      m_playerHealth(100.0f),
+      m_playerMaxHealth(100.0f),
+      m_wagonTravelTime(45.0f),
+      m_wagonTravelTimer(0.0f)
 {
     m_view.setSize(1280.0f, 720.0f);
     m_view.setCenter(640.0f, 360.0f);
@@ -207,6 +211,7 @@ void Game::changeToWagonRoom(int platformDoorIndex)
     const float interiorStartX = segmentWidth * doorInteriorSegments[doorInteriorIndex];
 
     m_player.setPosition(sf::Vector2f(interiorStartX + 200.0f, spawnY));
+    m_wagonTravelTimer = m_wagonTravelTime;
 
     m_view.setCenter(m_player.getPosition());
 }
@@ -280,6 +285,16 @@ void Game::update()
         }
     }
 
+    if (m_currentRoom->getRoomType() == Room::Wagon && m_wagonTravelTimer > 0.0f)
+    {
+        m_wagonTravelTimer -= m_deltaTime;
+
+        if (m_wagonTravelTimer < 0.0f)
+        {
+            m_wagonTravelTimer = 0.0f;
+        }
+    }
+
     m_view.setCenter(m_player.getPosition());
 }
 
@@ -289,5 +304,14 @@ void Game::render()
     m_window.setView(m_view);
     m_currentRoom->render(m_window);
     m_player.render(m_window);
+
+    m_window.setView(m_window.getDefaultView());
+    m_renderer.renderHud(
+        m_window,
+        m_playerHealth / m_playerMaxHealth,
+        m_currentRoom->getRoomType() == Room::Wagon,
+        m_wagonTravelTimer / m_wagonTravelTime
+    );
+
     m_window.display();
 }

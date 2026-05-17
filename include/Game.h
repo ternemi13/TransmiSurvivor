@@ -4,6 +4,7 @@
 
 #include <SFML/Graphics.hpp>
 #include "Player.h"
+#include "Renderer.h"
 #include "Room.h"
 
 class Game
@@ -12,6 +13,7 @@ private:
     sf::RenderWindow m_window;
     sf::Clock m_clock;
     sf::View m_view;
+    Renderer m_renderer;
     sf::FloatRect m_doorArea;
     static const int PLATFORM_DOOR_COUNT = 9;
     std::array<sf::FloatRect, PLATFORM_DOOR_COUNT> m_platformDoorAreas;
@@ -23,6 +25,10 @@ private:
     Room m_wagonRoom;
 
     float m_deltaTime;
+    float m_playerHealth;
+    float m_playerMaxHealth;
+    float m_wagonTravelTime;
+    float m_wagonTravelTimer;
 
     Player m_player;
 
