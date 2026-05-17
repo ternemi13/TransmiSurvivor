@@ -329,6 +329,20 @@ void Game::update()
         }
     }
 
+    if (m_currentRoom->getRoomType() == Room::Wagon)
+    {
+        const sf::FloatRect updatedPlayerBounds = m_player.getBounds();
+        const sf::Vector2f playerCenter(
+            updatedPlayerBounds.left + updatedPlayerBounds.width * 0.5f,
+            updatedPlayerBounds.top + updatedPlayerBounds.height * 0.5f
+        );
+
+        for (int i = 0; i < m_enemyCount; i++)
+        {
+            m_enemies[i].update(m_deltaTime, playerCenter);
+        }
+    }
+
     m_view.setCenter(m_player.getPosition());
 }
 

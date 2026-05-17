@@ -1,7 +1,10 @@
 #include "Enemy.h"
 
+#include <cmath>
+
 Enemy::Enemy()
-    : m_active(false)
+    : m_speed(85.0f),
+      m_active(false)
 {
 }
 
@@ -19,6 +22,43 @@ bool Enemy::spawn(const char* spritePath, sf::Vector2f position)
     m_active = true;
 
     return true;
+}
+
+void Enemy::update(float deltaTime, sf::Vector2f targetPosition)
+{
+    if (!m_active)
+    {
+        return;
+    }
+
+    const sf::FloatRect enemyBounds = m_sprite.getGlobalBounds();
+    const sf::Vector2f enemyCenter(
+        enemyBounds.left + enemyBounds.width * 0.5f,
+        enemyBounds.top + enemyBounds.height * 0.5f
+    );
+
+    sf::Vector2f direction(
+        targetPosition.x - enemyCenter.x,
+        targetPosition.y - enemyCenter.y
+    );
+
+    const float distance = std::sqrt(
+        direction.x * direction.x +
+        direction.y * direction.y
+    );
+
+    if (distance < 1.0f)
+    {
+        return;
+    }
+
+    direction.x /= distance;
+    direction.y /= distance;
+
+    m_sprite.move(
+        direction.x * m_speed * deltaTime,
+        direction.y * m_speed * deltaTime
+    );
 }
 
 void Enemy::render(sf::RenderWindow& window)
