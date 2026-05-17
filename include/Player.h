@@ -1,16 +1,46 @@
 #pragma once
 
+#include <array>
+
 #include <SFML/Graphics.hpp>
 
 class Player
 {
 private:
+    enum HorizontalDirection
+    {
+        Left,
+        Right
+    };
+
+    static const int ATTACK_FRAME_COUNT = 3;
+
     sf::Texture m_frontTexture;
     sf::Texture m_backTexture;
     sf::Texture m_leftTexture;
     sf::Texture m_rightTexture;
+    std::array<sf::Texture, ATTACK_FRAME_COUNT> m_attackLeftTextures;
+    std::array<sf::Texture, ATTACK_FRAME_COUNT> m_attackRightTextures;
+    std::array<sf::IntRect, ATTACK_FRAME_COUNT> m_attackLeftRects;
+    std::array<sf::IntRect, ATTACK_FRAME_COUNT> m_attackRightRects;
     sf::Sprite m_sprite;
     float m_speed;
+    float m_normalScale;
+    float m_attackScale;
+    float m_attackFrameTime;
+    float m_attackTimer;
+    int m_attackFrame;
+    bool m_isAttacking;
+    bool m_attackKeyWasPressed;
+    HorizontalDirection m_horizontalDirection;
+
+    void startAttack();
+    void updateAttack(float deltaTime);
+    void setNormalTexture(sf::Texture& texture);
+    void setAttackFrameTexture();
+    void setSpriteTexture(sf::Texture& texture,
+                          float scale,
+                          sf::IntRect textureRect = sf::IntRect());
 
 public:
     Player();
