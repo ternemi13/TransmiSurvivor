@@ -11,6 +11,7 @@ Game::Game()
       m_enemyContactDamage(10.0f),
       m_damageCooldown(0.8f),
       m_damageCooldownTimer(0.0f),
+      m_platformBoardingCooldownTimer(0.0f),
       m_playerAttackDamage(1),
       m_enemyCount(0),
       m_randomEngine(std::random_device{}())
@@ -196,12 +197,37 @@ void Game::setupRooms()
             doorIndex++;
         }
     }
+
+    const std::array<int, WAGON_DOOR_COUNT> wagonDoorSegments = {1, 6, 10};
+    for (int wagonDoorIndex = 0; wagonDoorIndex < WAGON_DOOR_COUNT; wagonDoorIndex++)
+    {
+        m_wagonExitDoorAreas[wagonDoorIndex] = sf::FloatRect(
+            segmentWidth * wagonDoorSegments[wagonDoorIndex] + 192.0f,
+            325.0f,
+            26.0f,
+            18.0f
+        );
+    }
 }
 
 void Game::changeToPlatformRoom()
 {
     m_currentRoom = &m_platformRoom;
     m_player.setPosition(sf::Vector2f(200.0f, 200.0f));
+    m_view.setCenter(m_player.getPosition());
+}
+
+void Game::changeToPlatformRoomFromWagon(int wagonDoorIndex)
+{
+    const float segmentWidth = 409.6f;
+    const float platformSegmentX = segmentWidth * wagonDoorIndex;
+
+    m_currentRoom = &m_platformRoom;
+    m_player.setPosition(sf::Vector2f(platformSegmentX + 200.0f, 285.0f));
+    m_wagonTravelTimer = 0.0f;
+    m_enemyCount = 0;
+    m_damageCooldownTimer = 0.0f;
+    m_platformBoardingCooldownTimer = 0.6f;
     m_view.setCenter(m_player.getPosition());
 }
 
@@ -271,6 +297,19 @@ void Game::spawnWagonEnemies()
     }
 }
 
+bool Game::areWagonEnemiesDefeated() const
+{
+    for (int i = 0; i < m_enemyCount; i++)
+    {
+        if (m_enemies[i].isActive())
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 void Game::run()
 {
     while (m_window.isOpen())
@@ -304,6 +343,16 @@ void Game::update()
         m_player.update(m_deltaTime);
     }
 
+    if (m_platformBoardingCooldownTimer > 0.0f)
+    {
+        m_platformBoardingCooldownTimer -= m_deltaTime;
+
+        if (m_platformBoardingCooldownTimer < 0.0f)
+        {
+            m_platformBoardingCooldownTimer = 0.0f;
+        }
+    }
+
     sf::FloatRect playerBounds = m_player.getBounds();
     const sf::Vector2f playerFeet(
         playerBounds.left + playerBounds.width * 0.5f,
@@ -333,12 +382,15 @@ void Game::update()
     }
     else if (m_currentRoom->getRoomType() == Room::Platform)
     {
-        for (int doorIndex = 0; doorIndex < PLATFORM_DOOR_COUNT; doorIndex++)
+        if (m_platformBoardingCooldownTimer == 0.0f)
         {
-            if (m_platformDoorAreas[doorIndex].contains(playerFeet))
+            for (int doorIndex = 0; doorIndex < PLATFORM_DOOR_COUNT; doorIndex++)
             {
-                changeToWagonRoom(doorIndex);
-                break;
+                if (m_platformDoorAreas[doorIndex].contains(playerFeet))
+                {
+                    changeToWagonRoom(doorIndex);
+                    break;
+                }
             }
         }
     }
@@ -408,6 +460,20 @@ void Game::update()
                     }
 
                     m_damageCooldownTimer = m_damageCooldown;
+                    break;
+                }
+            }
+        }
+
+        if (m_playerHealth > 0.0f &&
+            m_wagonTravelTimer == 0.0f &&
+            areWagonEnemiesDefeated())
+        {
+            for (int wagonDoorIndex = 0; wagonDoorIndex < WAGON_DOOR_COUNT; wagonDoorIndex++)
+            {
+                if (m_wagonExitDoorAreas[wagonDoorIndex].contains(playerFeet))
+                {
+                    changeToPlatformRoomFromWagon(wagonDoorIndex);
                     break;
                 }
             }

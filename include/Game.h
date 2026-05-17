@@ -18,8 +18,10 @@ private:
     Renderer m_renderer;
     sf::FloatRect m_doorArea;
     static const int PLATFORM_DOOR_COUNT = 9;
+    static const int WAGON_DOOR_COUNT = 3;
     static const int MAX_ENEMIES = 8;
     std::array<sf::FloatRect, PLATFORM_DOOR_COUNT> m_platformDoorAreas;
+    std::array<sf::FloatRect, WAGON_DOOR_COUNT> m_wagonExitDoorAreas;
     std::array<Enemy, MAX_ENEMIES> m_enemies;
     std::array<int, MAX_ENEMIES> m_enemyLastHitAttackIds;
 
@@ -37,6 +39,7 @@ private:
     float m_enemyContactDamage;
     float m_damageCooldown;
     float m_damageCooldownTimer;
+    float m_platformBoardingCooldownTimer;
     int m_playerAttackDamage;
     int m_enemyCount;
     std::mt19937 m_randomEngine;
@@ -52,8 +55,10 @@ private:
     void setupRooms();
 
     void changeToPlatformRoom();
+    void changeToPlatformRoomFromWagon(int wagonDoorIndex);
     void changeToWagonRoom(int platformDoorIndex);
     void spawnWagonEnemies();
+    bool areWagonEnemiesDefeated() const;
 
 public:
     Game();
