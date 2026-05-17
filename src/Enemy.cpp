@@ -73,3 +73,8 @@ bool Enemy::isActive() const
 {
     return m_active;
 }
+
+sf::FloatRect Enemy::getBounds() const
+{
+    return m_sprite.getGlobalBounds();
+}

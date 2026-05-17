@@ -17,4 +17,5 @@ public:
     void update(float deltaTime, sf::Vector2f targetPosition);
     void render(sf::RenderWindow& window);
     bool isActive() const;
+    sf::FloatRect getBounds() const;
 };

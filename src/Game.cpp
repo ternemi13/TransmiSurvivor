@@ -8,6 +8,9 @@ Game::Game()
       m_playerMaxHealth(100.0f),
       m_wagonTravelTime(45.0f),
       m_wagonTravelTimer(0.0f),
+      m_enemyContactDamage(10.0f),
+      m_damageCooldown(0.8f),
+      m_damageCooldownTimer(0.0f),
       m_enemyCount(0),
       m_randomEngine(std::random_device{}())
 {
@@ -214,6 +217,7 @@ void Game::changeToWagonRoom(int platformDoorIndex)
 
     m_player.setPosition(sf::Vector2f(interiorStartX + 200.0f, spawnY));
     m_wagonTravelTimer = m_wagonTravelTime;
+    m_damageCooldownTimer = 0.0f;
     spawnWagonEnemies();
 
     m_view.setCenter(m_player.getPosition());
@@ -340,6 +344,36 @@ void Game::update()
         for (int i = 0; i < m_enemyCount; i++)
         {
             m_enemies[i].update(m_deltaTime, playerCenter);
+        }
+
+        if (m_damageCooldownTimer > 0.0f)
+        {
+            m_damageCooldownTimer -= m_deltaTime;
+
+            if (m_damageCooldownTimer < 0.0f)
+            {
+                m_damageCooldownTimer = 0.0f;
+            }
+        }
+
+        if (m_damageCooldownTimer == 0.0f && m_playerHealth > 0.0f)
+        {
+            for (int i = 0; i < m_enemyCount; i++)
+            {
+                if (m_enemies[i].isActive() &&
+                    m_enemies[i].getBounds().intersects(updatedPlayerBounds))
+                {
+                    m_playerHealth -= m_enemyContactDamage;
+
+                    if (m_playerHealth < 0.0f)
+                    {
+                        m_playerHealth = 0.0f;
+                    }
+
+                    m_damageCooldownTimer = m_damageCooldown;
+                    break;
+                }
+            }
         }
     }
 

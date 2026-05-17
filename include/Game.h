@@ -33,6 +33,9 @@ private:
     float m_playerMaxHealth;
     float m_wagonTravelTime;
     float m_wagonTravelTimer;
+    float m_enemyContactDamage;
+    float m_damageCooldown;
+    float m_damageCooldownTimer;
     int m_enemyCount;
     std::mt19937 m_randomEngine;
 
