@@ -228,10 +228,20 @@ void Game::spawnWagonEnemies()
 {
     const float segmentWidth = 409.6f;
     const std::array<int, 9> interiorSegments = {1, 2, 3, 5, 6, 7, 9, 10, 11};
-    const std::array<const char*, 2> enemySprites = {
-        "../assets/sprites/enemies/enemie1/front.png",
-        "../assets/sprites/enemies/enemie2/front.png"
-    };
+    const std::array<std::array<const char*, 4>, 2> enemySprites = {{
+        {
+            "../assets/sprites/enemies/enemie1/front.png",
+            "../assets/sprites/enemies/enemie1/back.png",
+            "../assets/sprites/enemies/enemie1/right.png",
+            "../assets/sprites/enemies/enemie1/left.png"
+        },
+        {
+            "../assets/sprites/enemies/enemie2/front.png",
+            "../assets/sprites/enemies/enemie2/back.png",
+            "../assets/sprites/enemies/enemie2/right.png",
+            "../assets/sprites/enemies/enemie2/left.png"
+        }
+    }};
 
     std::uniform_int_distribution<int> segmentDistribution(0, interiorSegments.size() - 1);
     std::uniform_int_distribution<int> enemyDistribution(0, enemySprites.size() - 1);
@@ -247,9 +257,13 @@ void Game::spawnWagonEnemies()
             segmentWidth * segmentIndex + xDistribution(m_randomEngine),
             yDistribution(m_randomEngine)
         );
+        const int enemyType = enemyDistribution(m_randomEngine);
 
         m_enemies[i].spawn(
-            enemySprites[enemyDistribution(m_randomEngine)],
+            enemySprites[enemyType][0],
+            enemySprites[enemyType][1],
+            enemySprites[enemyType][2],
+            enemySprites[enemyType][3],
             enemyPosition
         );
 
@@ -422,7 +436,13 @@ void Game::render()
         m_player.render(m_window);
     }
 
-    m_window.setView(m_window.getDefaultView());
+    const sf::Vector2u windowSize = m_window.getSize();
+    m_window.setView(sf::View(sf::FloatRect(
+        0.0f,
+        0.0f,
+        static_cast<float>(windowSize.x),
+        static_cast<float>(windowSize.y)
+    )));
     m_renderer.renderHud(
         m_window,
         m_playerHealth / m_playerMaxHealth,
