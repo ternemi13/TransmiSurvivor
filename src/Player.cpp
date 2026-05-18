@@ -8,6 +8,8 @@ Player::Player()
     m_backTexture.loadFromFile("../assets/sprites/player/back.png");
     m_leftTexture.loadFromFile("../assets/sprites/player/left.png");
     m_rightTexture.loadFromFile("../assets/sprites/player/right.png");
+    m_guardRightTexture.loadFromFile("../assets/sprites/player/cubrirse/cubrirseD.png");
+    m_guardLeftTexture.loadFromFile("../assets/sprites/player/cubrirse/cubrirseI.png");
     m_attackRightTextures[0].loadFromFile("../assets/sprites/player/golpe/golpes derecha/frame_0.png");
     m_attackRightTextures[1].loadFromFile("../assets/sprites/player/golpe/golpes derecha/frame_1.png");
     m_attackRightTextures[2].loadFromFile("../assets/sprites/player/golpe/golpes derecha/frame_2.png");
@@ -15,6 +17,8 @@ Player::Player()
     m_attackLeftTextures[1].loadFromFile("../assets/sprites/player/golpe/golpe izquierda/frame_1.png");
     m_attackLeftTextures[2].loadFromFile("../assets/sprites/player/golpe/golpe izquierda/frame_2.png");
 
+    m_guardRightRect = sf::IntRect(201, 306, 627, 875);
+    m_guardLeftRect = sf::IntRect(196, 306, 625, 875);
     m_attackRightRects[0] = sf::IntRect(340, 0, 451, 452);
     m_attackRightRects[1] = sf::IntRect(336, 61, 432, 406);
     m_attackRightRects[2] = sf::IntRect(327, 80, 464, 374);
@@ -23,12 +27,14 @@ Player::Player()
     m_attackLeftRects[2] = sf::IntRect(233, 80, 464, 373);
 
     m_normalScale = 0.2f;
+    m_guardScale = 0.078f;
     m_attackScale = 0.15f;
     m_attackFrameTime = 0.08f;
     m_attackTimer = 0.0f;
     m_attackFrame = 0;
     m_attackId = 0;
     m_isAttacking = false;
+    m_isGuarding = false;
     m_attackKeyWasPressed = false;
     m_horizontalDirection = Right;
 
@@ -41,10 +47,25 @@ Player::Player()
 void Player::handleInput(float deltaTime)
 {
     sf::Vector2f movement(0.0f, 0.0f);
+    const bool wantsGuard = sf::Keyboard::isKeyPressed(sf::Keyboard::F) && !m_isAttacking;
+
+    if (!wantsGuard && m_isGuarding)
+    {
+        m_isGuarding = false;
+
+        if (m_horizontalDirection == Left)
+        {
+            setNormalTexture(m_leftTexture);
+        }
+        else
+        {
+            setNormalTexture(m_rightTexture);
+        }
+    }
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
     {
-        if (!m_isAttacking)
+        if (!m_isAttacking && !wantsGuard)
         {
             setNormalTexture(m_backTexture);
         }
@@ -54,7 +75,7 @@ void Player::handleInput(float deltaTime)
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
     {
-        if (!m_isAttacking)
+        if (!m_isAttacking && !wantsGuard)
         {
             setNormalTexture(m_frontTexture);
         }
@@ -67,7 +88,11 @@ void Player::handleInput(float deltaTime)
         if (!m_isAttacking)
         {
             m_horizontalDirection = Left;
-            setNormalTexture(m_leftTexture);
+
+            if (!wantsGuard)
+            {
+                setNormalTexture(m_leftTexture);
+            }
         }
 
         movement.x -= 1.0f;
@@ -78,10 +103,20 @@ void Player::handleInput(float deltaTime)
         if (!m_isAttacking)
         {
             m_horizontalDirection = Right;
-            setNormalTexture(m_rightTexture);
+
+            if (!wantsGuard)
+            {
+                setNormalTexture(m_rightTexture);
+            }
         }
 
         movement.x += 1.0f;
+    }
+
+    if (wantsGuard)
+    {
+        m_isGuarding = true;
+        setGuardTexture();
     }
 
     if (movement.x != 0.0f || movement.y != 0.0f)
@@ -152,6 +187,11 @@ bool Player::isAttacking() const
     return m_isAttacking;
 }
 
+bool Player::isGuarding() const
+{
+    return m_isGuarding;
+}
+
 int Player::getAttackId() const
 {
     return m_attackId;
@@ -166,7 +206,7 @@ void Player::startAttack()
 {
     const bool attackKeyPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::E);
 
-    if (attackKeyPressed && !m_attackKeyWasPressed && !m_isAttacking)
+    if (attackKeyPressed && !m_attackKeyWasPressed && !m_isAttacking && !m_isGuarding)
     {
         m_isAttacking = true;
         m_attackTimer = 0.0f;
@@ -217,6 +257,18 @@ void Player::updateAttack(float deltaTime)
 void Player::setNormalTexture(sf::Texture& texture)
 {
     setSpriteTexture(texture, m_normalScale);
+}
+
+void Player::setGuardTexture()
+{
+    if (m_horizontalDirection == Left)
+    {
+        setSpriteTexture(m_guardLeftTexture, m_guardScale, m_guardLeftRect);
+    }
+    else
+    {
+        setSpriteTexture(m_guardRightTexture, m_guardScale, m_guardRightRect);
+    }
 }
 
 void Player::setAttackFrameTexture()

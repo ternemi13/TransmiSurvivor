@@ -24,6 +24,7 @@ private:
     std::array<sf::FloatRect, WAGON_DOOR_COUNT> m_wagonExitDoorAreas;
     std::array<Enemy, MAX_ENEMIES> m_enemies;
     std::array<int, MAX_ENEMIES> m_enemyLastHitAttackIds;
+    std::array<int, MAX_ENEMIES> m_enemyLastPlayerDamageAttackIds;
 
     Room m_entranceRoom;
     Room m_platformRoom;
@@ -36,9 +37,7 @@ private:
     float m_playerMaxHealth;
     float m_wagonTravelTime;
     float m_wagonTravelTimer;
-    float m_enemyContactDamage;
-    float m_damageCooldown;
-    float m_damageCooldownTimer;
+    float m_enemyAttackDamage;
     float m_platformBoardingCooldownTimer;
     int m_playerAttackDamage;
     int m_enemyCount;

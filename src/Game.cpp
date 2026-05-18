@@ -8,9 +8,7 @@ Game::Game()
       m_playerMaxHealth(100.0f),
       m_wagonTravelTime(45.0f),
       m_wagonTravelTimer(0.0f),
-      m_enemyContactDamage(10.0f),
-      m_damageCooldown(0.8f),
-      m_damageCooldownTimer(0.0f),
+      m_enemyAttackDamage(10.0f),
       m_platformBoardingCooldownTimer(0.0f),
       m_playerAttackDamage(1),
       m_enemyCount(0),
@@ -226,7 +224,6 @@ void Game::changeToPlatformRoomFromWagon(int wagonDoorIndex)
     m_player.setPosition(sf::Vector2f(platformSegmentX + 200.0f, 285.0f));
     m_wagonTravelTimer = 0.0f;
     m_enemyCount = 0;
-    m_damageCooldownTimer = 0.0f;
     m_platformBoardingCooldownTimer = 0.6f;
     m_view.setCenter(m_player.getPosition());
 }
@@ -244,7 +241,6 @@ void Game::changeToWagonRoom(int platformDoorIndex)
 
     m_player.setPosition(sf::Vector2f(interiorStartX + 200.0f, spawnY));
     m_wagonTravelTimer = m_wagonTravelTime;
-    m_damageCooldownTimer = 0.0f;
     spawnWagonEnemies();
 
     m_view.setCenter(m_player.getPosition());
@@ -254,18 +250,48 @@ void Game::spawnWagonEnemies()
 {
     const float segmentWidth = 409.6f;
     const std::array<int, 9> interiorSegments = {1, 2, 3, 5, 6, 7, 9, 10, 11};
-    const std::array<std::array<const char*, 4>, 2> enemySprites = {{
+    struct EnemySpritePaths
+    {
+        const char* front;
+        const char* back;
+        const char* left;
+        const char* right;
+        std::array<const char*, 3> attackLeft;
+        std::array<const char*, 3> attackRight;
+    };
+
+    const std::array<EnemySpritePaths, 2> enemySprites = {{
         {
             "../assets/sprites/enemies/enemie1/front.png",
             "../assets/sprites/enemies/enemie1/back.png",
             "../assets/sprites/enemies/enemie1/right.png",
-            "../assets/sprites/enemies/enemie1/left.png"
+            "../assets/sprites/enemies/enemie1/left.png",
+            {
+                "../assets/sprites/enemies/enemie1/ataque/izqueirda/slash_0.png",
+                "../assets/sprites/enemies/enemie1/ataque/izqueirda/slash_1.png",
+                "../assets/sprites/enemies/enemie1/ataque/izqueirda/slash_2.png"
+            },
+            {
+                "../assets/sprites/enemies/enemie1/ataque/derecha/attack2_0.png",
+                "../assets/sprites/enemies/enemie1/ataque/derecha/attack2_1.png",
+                "../assets/sprites/enemies/enemie1/ataque/derecha/attack2_2.png"
+            }
         },
         {
             "../assets/sprites/enemies/enemie2/front.png",
             "../assets/sprites/enemies/enemie2/back.png",
             "../assets/sprites/enemies/enemie2/right.png",
-            "../assets/sprites/enemies/enemie2/left.png"
+            "../assets/sprites/enemies/enemie2/left.png",
+            {
+                "../assets/sprites/enemies/enemie2/ataque/ataqueI/frame_0.png",
+                "../assets/sprites/enemies/enemie2/ataque/ataqueI/frame_1.png",
+                "../assets/sprites/enemies/enemie2/ataque/ataqueI/frame_2.png"
+            },
+            {
+                "../assets/sprites/enemies/enemie2/ataque/ataqueD/frame_0.png",
+                "../assets/sprites/enemies/enemie2/ataque/ataqueD/frame_1.png",
+                "../assets/sprites/enemies/enemie2/ataque/ataqueD/frame_2.png"
+            }
         }
     }};
 
@@ -284,16 +310,24 @@ void Game::spawnWagonEnemies()
             yDistribution(m_randomEngine)
         );
         const int enemyType = enemyDistribution(m_randomEngine);
+        const EnemySpritePaths& paths = enemySprites[enemyType];
 
         m_enemies[i].spawn(
-            enemySprites[enemyType][0],
-            enemySprites[enemyType][1],
-            enemySprites[enemyType][2],
-            enemySprites[enemyType][3],
+            paths.front,
+            paths.back,
+            paths.left,
+            paths.right,
+            paths.attackLeft[0],
+            paths.attackLeft[1],
+            paths.attackLeft[2],
+            paths.attackRight[0],
+            paths.attackRight[1],
+            paths.attackRight[2],
             enemyPosition
         );
 
         m_enemyLastHitAttackIds[i] = -1;
+        m_enemyLastPlayerDamageAttackIds[i] = -1;
     }
 }
 
@@ -435,32 +469,26 @@ void Game::update()
             }
         }
 
-        if (m_damageCooldownTimer > 0.0f)
-        {
-            m_damageCooldownTimer -= m_deltaTime;
-
-            if (m_damageCooldownTimer < 0.0f)
-            {
-                m_damageCooldownTimer = 0.0f;
-            }
-        }
-
-        if (m_damageCooldownTimer == 0.0f && m_playerHealth > 0.0f)
+        if (m_playerHealth > 0.0f)
         {
             for (int i = 0; i < m_enemyCount; i++)
             {
                 if (m_enemies[i].isActive() &&
-                    m_enemies[i].getBounds().intersects(updatedPlayerBounds))
+                    m_enemies[i].isAttackDamageActive() &&
+                    m_enemyLastPlayerDamageAttackIds[i] != m_enemies[i].getAttackId() &&
+                    m_enemies[i].getAttackBounds().intersects(updatedPlayerBounds))
                 {
-                    m_playerHealth -= m_enemyContactDamage;
-
-                    if (m_playerHealth < 0.0f)
+                    if (!m_player.isGuarding())
                     {
-                        m_playerHealth = 0.0f;
+                        m_playerHealth -= m_enemyAttackDamage;
+
+                        if (m_playerHealth < 0.0f)
+                        {
+                            m_playerHealth = 0.0f;
+                        }
                     }
 
-                    m_damageCooldownTimer = m_damageCooldown;
-                    break;
+                    m_enemyLastPlayerDamageAttackIds[i] = m_enemies[i].getAttackId();
                 }
             }
         }
