@@ -463,7 +463,7 @@ void Game::update()
                     m_enemyLastHitAttackIds[i] != attackId &&
                     m_enemies[i].getBounds().intersects(attackBounds))
                 {
-                    m_enemies[i].takeDamage(m_playerAttackDamage);
+                    m_enemies[i].takeDamage(m_playerAttackDamage, playerCenter);
                     m_enemyLastHitAttackIds[i] = attackId;
                 }
             }
@@ -478,6 +478,12 @@ void Game::update()
                     m_enemyLastPlayerDamageAttackIds[i] != m_enemies[i].getAttackId() &&
                     m_enemies[i].getAttackBounds().intersects(updatedPlayerBounds))
                 {
+                    const sf::FloatRect enemyBounds = m_enemies[i].getBounds();
+                    const sf::Vector2f enemyCenter(
+                        enemyBounds.left + enemyBounds.width * 0.5f,
+                        enemyBounds.top + enemyBounds.height * 0.5f
+                    );
+
                     if (!m_player.isGuarding())
                     {
                         m_playerHealth -= m_enemyAttackDamage;
@@ -486,6 +492,12 @@ void Game::update()
                         {
                             m_playerHealth = 0.0f;
                         }
+
+                        m_player.takeDamageFeedback(enemyCenter);
+                    }
+                    else
+                    {
+                        m_player.blockAttackFeedback(enemyCenter);
                     }
 
                     m_enemyLastPlayerDamageAttackIds[i] = m_enemies[i].getAttackId();

@@ -34,6 +34,7 @@ private:
     float m_attackTimer;
     float m_attackCooldown;
     float m_attackCooldownTimer;
+    float m_feedbackTimer;
     int m_attackFrame;
     int m_attackId;
     int m_health;
@@ -43,6 +44,8 @@ private:
     void setFacingDirection(FacingDirection facingDirection);
     void startAttack(FacingDirection attackDirection);
     void updateAttack(float deltaTime);
+    void updateFeedback(float deltaTime);
+    void applyKnockback(sf::Vector2f sourcePosition, float distance);
     void setAttackFrameTexture();
     void setSpriteTexture(sf::Texture& texture,
                           float scale,
@@ -63,7 +66,7 @@ public:
                const char* attackRightFrame2Path,
                sf::Vector2f position);
     void update(float deltaTime, sf::Vector2f targetPosition);
-    void takeDamage(int damage);
+    void takeDamage(int damage, sf::Vector2f sourcePosition);
     void render(sf::RenderWindow& window);
     bool isActive() const;
     bool isAttacking() const;

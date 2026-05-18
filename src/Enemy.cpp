@@ -78,11 +78,12 @@ Enemy::Enemy()
       m_normalScale(0.12f),
       m_attackScale(0.18f),
       m_speed(85.0f),
-      m_attackRange(86.0f),
+      m_attackRange(58.0f),
       m_attackFrameTime(0.12f),
       m_attackTimer(0.0f),
       m_attackCooldown(0.55f),
       m_attackCooldownTimer(0.0f),
+      m_feedbackTimer(0.0f),
       m_attackFrame(0),
       m_attackId(0),
       m_health(0),
@@ -151,10 +152,12 @@ bool Enemy::spawn(const char* frontSpritePath,
     m_facingDirection = FacingDirection::Front;
     m_attackTimer = 0.0f;
     m_attackCooldownTimer = 0.0f;
+    m_feedbackTimer = 0.0f;
     m_attackFrame = 0;
     m_isAttacking = false;
     m_health = 3;
     m_active = true;
+    m_sprite.setColor(sf::Color::White);
 
     return true;
 }
@@ -283,12 +286,60 @@ void Enemy::setSpriteTexture(sf::Texture& texture,
     );
 }
 
+void Enemy::updateFeedback(float deltaTime)
+{
+    if (m_feedbackTimer <= 0.0f)
+    {
+        return;
+    }
+
+    m_feedbackTimer -= deltaTime;
+
+    if (m_feedbackTimer <= 0.0f)
+    {
+        m_feedbackTimer = 0.0f;
+        m_sprite.setColor(sf::Color::White);
+    }
+}
+
+void Enemy::applyKnockback(sf::Vector2f sourcePosition, float distance)
+{
+    const sf::FloatRect bounds = m_sprite.getGlobalBounds();
+    const sf::Vector2f center(
+        bounds.left + bounds.width * 0.5f,
+        bounds.top + bounds.height * 0.5f
+    );
+    sf::Vector2f direction(
+        center.x - sourcePosition.x,
+        center.y - sourcePosition.y
+    );
+    const float length = std::sqrt(
+        direction.x * direction.x +
+        direction.y * direction.y
+    );
+
+    if (length < 0.001f)
+    {
+        direction.x = m_facingDirection == FacingDirection::Left ? 1.0f : -1.0f;
+        direction.y = 0.0f;
+    }
+    else
+    {
+        direction.x /= length;
+        direction.y /= length;
+    }
+
+    m_sprite.move(direction.x * distance, direction.y * distance);
+}
+
 void Enemy::update(float deltaTime, sf::Vector2f targetPosition)
 {
     if (!m_active)
     {
         return;
     }
+
+    updateFeedback(deltaTime);
 
     if (m_attackCooldownTimer > 0.0f)
     {
@@ -375,7 +426,7 @@ void Enemy::update(float deltaTime, sf::Vector2f targetPosition)
     );
 }
 
-void Enemy::takeDamage(int damage)
+void Enemy::takeDamage(int damage, sf::Vector2f sourcePosition)
 {
     if (!m_active)
     {
@@ -388,7 +439,13 @@ void Enemy::takeDamage(int damage)
     {
         m_health = 0;
         m_active = false;
+        m_sprite.setColor(sf::Color::White);
+        return;
     }
+
+    m_sprite.setColor(sf::Color(255, 55, 55));
+    m_feedbackTimer = 0.08f;
+    applyKnockback(sourcePosition, 20.0f);
 }
 
 void Enemy::render(sf::RenderWindow& window)

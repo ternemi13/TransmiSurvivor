@@ -31,10 +31,12 @@ Player::Player()
     m_attackScale = 0.15f;
     m_attackFrameTime = 0.08f;
     m_attackTimer = 0.0f;
+    m_feedbackTimer = 0.0f;
     m_attackFrame = 0;
     m_attackId = 0;
     m_isAttacking = false;
     m_isGuarding = false;
+    m_hasBrightFeedback = false;
     m_attackKeyWasPressed = false;
     m_horizontalDirection = Right;
 
@@ -135,11 +137,19 @@ void Player::update(float deltaTime)
     handleInput(deltaTime);
     startAttack();
     updateAttack(deltaTime);
+    updateFeedback(deltaTime);
 }
 
 void Player::render(sf::RenderWindow& window)
 {
     window.draw(m_sprite);
+
+    if (m_hasBrightFeedback && m_feedbackTimer > 0.0f)
+    {
+        sf::Sprite brightSprite = m_sprite;
+        brightSprite.setColor(sf::Color(255, 255, 255, 130));
+        window.draw(brightSprite, sf::BlendAdd);
+    }
 }
 
 sf::Vector2f Player::getPosition() const
@@ -202,6 +212,22 @@ void Player::setPosition(sf::Vector2f position)
     m_sprite.setPosition(position);
 }
 
+void Player::takeDamageFeedback(sf::Vector2f sourcePosition)
+{
+    m_sprite.setColor(sf::Color(255, 70, 70));
+    m_feedbackTimer = 0.09f;
+    m_hasBrightFeedback = false;
+    applyKnockback(sourcePosition, 18.0f);
+}
+
+void Player::blockAttackFeedback(sf::Vector2f sourcePosition)
+{
+    m_sprite.setColor(sf::Color::White);
+    m_feedbackTimer = 0.11f;
+    m_hasBrightFeedback = true;
+    applyKnockback(sourcePosition, 11.0f);
+}
+
 void Player::startAttack()
 {
     const bool attackKeyPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::E);
@@ -252,6 +278,53 @@ void Player::updateAttack(float deltaTime)
     }
 
     setAttackFrameTexture();
+}
+
+void Player::updateFeedback(float deltaTime)
+{
+    if (m_feedbackTimer <= 0.0f)
+    {
+        return;
+    }
+
+    m_feedbackTimer -= deltaTime;
+
+    if (m_feedbackTimer <= 0.0f)
+    {
+        m_feedbackTimer = 0.0f;
+        m_hasBrightFeedback = false;
+        m_sprite.setColor(sf::Color::White);
+    }
+}
+
+void Player::applyKnockback(sf::Vector2f sourcePosition, float distance)
+{
+    const sf::FloatRect bounds = m_sprite.getGlobalBounds();
+    const sf::Vector2f center(
+        bounds.left + bounds.width * 0.5f,
+        bounds.top + bounds.height * 0.5f
+    );
+    sf::Vector2f direction(
+        center.x - sourcePosition.x,
+        center.y - sourcePosition.y
+    );
+    const float length = std::sqrt(
+        direction.x * direction.x +
+        direction.y * direction.y
+    );
+
+    if (length < 0.001f)
+    {
+        direction.x = m_horizontalDirection == Left ? 1.0f : -1.0f;
+        direction.y = 0.0f;
+    }
+    else
+    {
+        direction.x /= length;
+        direction.y /= length;
+    }
+
+    m_sprite.move(direction.x * distance, direction.y * distance);
 }
 
 void Player::setNormalTexture(sf::Texture& texture)

@@ -34,15 +34,19 @@ private:
     float m_attackScale;
     float m_attackFrameTime;
     float m_attackTimer;
+    float m_feedbackTimer;
     int m_attackFrame;
     int m_attackId;
     bool m_isAttacking;
     bool m_isGuarding;
+    bool m_hasBrightFeedback;
     bool m_attackKeyWasPressed;
     HorizontalDirection m_horizontalDirection;
 
     void startAttack();
     void updateAttack(float deltaTime);
+    void updateFeedback(float deltaTime);
+    void applyKnockback(sf::Vector2f sourcePosition, float distance);
     void setNormalTexture(sf::Texture& texture);
     void setGuardTexture();
     void setAttackFrameTexture();
@@ -54,6 +58,8 @@ public:
     Player();
 
     void setPosition(sf::Vector2f position);
+    void takeDamageFeedback(sf::Vector2f sourcePosition);
+    void blockAttackFeedback(sf::Vector2f sourcePosition);
     void handleInput(float deltaTime);
     void update(float deltaTime);
     void render(sf::RenderWindow& window);
