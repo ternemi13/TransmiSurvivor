@@ -57,6 +57,7 @@ private:
     void changeToPlatformRoomFromWagon(int wagonDoorIndex);
     void changeToWagonRoom(int platformDoorIndex);
     void spawnWagonEnemies();
+    int countAliveWagonEnemies() const;
     bool areWagonEnemiesDefeated() const;
 
 public:

@@ -331,17 +331,24 @@ void Game::spawnWagonEnemies()
     }
 }
 
-bool Game::areWagonEnemiesDefeated() const
+int Game::countAliveWagonEnemies() const
 {
+    int aliveEnemyCount = 0;
+
     for (int i = 0; i < m_enemyCount; i++)
     {
         if (m_enemies[i].isActive())
         {
-            return false;
+            aliveEnemyCount++;
         }
     }
 
-    return true;
+    return aliveEnemyCount;
+}
+
+bool Game::areWagonEnemiesDefeated() const
+{
+    return countAliveWagonEnemies() == 0;
 }
 
 void Game::run()
@@ -549,11 +556,14 @@ void Game::render()
         static_cast<float>(windowSize.x),
         static_cast<float>(windowSize.y)
     )));
+    const bool isWagonRoom = m_currentRoom->getRoomType() == Room::Wagon;
     m_renderer.renderHud(
         m_window,
         m_playerHealth / m_playerMaxHealth,
-        m_currentRoom->getRoomType() == Room::Wagon,
-        m_wagonTravelTimer / m_wagonTravelTime
+        isWagonRoom,
+        m_wagonTravelTimer / m_wagonTravelTime,
+        isWagonRoom ? countAliveWagonEnemies() : 0,
+        isWagonRoom ? m_enemyCount : 0
     );
 
     m_window.display();
