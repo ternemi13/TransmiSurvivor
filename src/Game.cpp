@@ -8,6 +8,8 @@ Game::Game()
       m_playerMaxHealth(100.0f),
       m_wagonTravelTime(45.0f),
       m_wagonTravelTimer(0.0f),
+      m_platformArrivalTime(8.0f),
+      m_platformArrivalTimer(0.0f),
       m_enemyAttackDamage(10.0f),
       m_platformBoardingCooldownTimer(0.0f),
       m_playerAttackDamage(1),
@@ -212,6 +214,8 @@ void Game::changeToPlatformRoom()
 {
     m_currentRoom = &m_platformRoom;
     m_player.setPosition(sf::Vector2f(200.0f, 200.0f));
+    m_platformArrivalTimer = m_platformArrivalTime;
+    m_platformBoardingCooldownTimer = 0.0f;
     m_view.setCenter(m_player.getPosition());
 }
 
@@ -224,6 +228,7 @@ void Game::changeToPlatformRoomFromWagon(int wagonDoorIndex)
     m_player.setPosition(sf::Vector2f(platformSegmentX + 200.0f, 285.0f));
     m_wagonTravelTimer = 0.0f;
     m_enemyCount = 0;
+    m_platformArrivalTimer = m_platformArrivalTime;
     m_platformBoardingCooldownTimer = 0.6f;
     m_view.setCenter(m_player.getPosition());
 }
@@ -234,6 +239,7 @@ void Game::changeToWagonRoom(int platformDoorIndex)
     const float spawnY = 210.0f;
 
     m_currentRoom = &m_wagonRoom;
+    m_platformArrivalTimer = 0.0f;
 
     const std::array<int, 3> doorInteriorSegments = {1, 6, 10};
     const int doorInteriorIndex = platformDoorIndex / 3;
@@ -331,6 +337,11 @@ void Game::spawnWagonEnemies()
     }
 }
 
+bool Game::isPlatformTrainReady() const
+{
+    return m_platformArrivalTimer == 0.0f;
+}
+
 int Game::countAliveWagonEnemies() const
 {
     int aliveEnemyCount = 0;
@@ -394,6 +405,17 @@ void Game::update()
         }
     }
 
+    if (m_currentRoom->getRoomType() == Room::Platform &&
+        m_platformArrivalTimer > 0.0f)
+    {
+        m_platformArrivalTimer -= m_deltaTime;
+
+        if (m_platformArrivalTimer < 0.0f)
+        {
+            m_platformArrivalTimer = 0.0f;
+        }
+    }
+
     sf::FloatRect playerBounds = m_player.getBounds();
     const sf::Vector2f playerFeet(
         playerBounds.left + playerBounds.width * 0.5f,
@@ -423,7 +445,8 @@ void Game::update()
     }
     else if (m_currentRoom->getRoomType() == Room::Platform)
     {
-        if (m_platformBoardingCooldownTimer == 0.0f)
+        if (m_platformBoardingCooldownTimer == 0.0f &&
+            isPlatformTrainReady())
         {
             for (int doorIndex = 0; doorIndex < PLATFORM_DOOR_COUNT; doorIndex++)
             {
@@ -558,11 +581,14 @@ void Game::render()
         static_cast<float>(windowSize.y)
     )));
     const bool isWagonRoom = m_currentRoom->getRoomType() == Room::Wagon;
+    const bool isPlatformRoom = m_currentRoom->getRoomType() == Room::Platform;
     m_renderer.renderHud(
         m_window,
         m_playerHealth / m_playerMaxHealth,
         isWagonRoom,
         m_wagonTravelTimer / m_wagonTravelTime,
+        isPlatformRoom,
+        1.0f - (m_platformArrivalTimer / m_platformArrivalTime),
         isWagonRoom ? countAliveWagonEnemies() : 0,
         isWagonRoom ? m_enemyCount : 0
     );

@@ -6,6 +6,8 @@ void Renderer::renderHud(sf::RenderWindow& window,
                          float healthRatio,
                          bool showTravelTimer,
                          float travelRatio,
+                         bool showPlatformTimer,
+                         float platformRatio,
                          int aliveEnemyCount,
                          int maxEnemyCount)
 {
@@ -44,6 +46,18 @@ void Renderer::renderHud(sf::RenderWindow& window,
             sf::Vector2f(windowWidth - enemyCounterWidth - 36.0f, windowHeight - 49.0f),
             aliveEnemyCount,
             maxEnemyCount
+        );
+    }
+    else if (showPlatformTimer)
+    {
+        drawBar(
+            window,
+            sf::Vector2f((windowWidth - 520.0f) * 0.5f, 22.0f),
+            sf::Vector2f(520.0f, 14.0f),
+            platformRatio,
+            sf::Color(55, 160, 245),
+            sf::Color(18, 35, 52),
+            sf::Color(150, 220, 255)
         );
     }
 }

@@ -37,6 +37,8 @@ private:
     float m_playerMaxHealth;
     float m_wagonTravelTime;
     float m_wagonTravelTimer;
+    float m_platformArrivalTime;
+    float m_platformArrivalTimer;
     float m_enemyAttackDamage;
     float m_platformBoardingCooldownTimer;
     int m_playerAttackDamage;
@@ -58,6 +60,7 @@ private:
     void changeToPlatformRoomFromWagon(int wagonDoorIndex);
     void changeToWagonRoom(int platformDoorIndex);
     void spawnWagonEnemies();
+    bool isPlatformTrainReady() const;
     int countAliveWagonEnemies() const;
     bool areWagonEnemiesDefeated() const;
 

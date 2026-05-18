@@ -9,6 +9,8 @@ public:
                    float healthRatio,
                    bool showTravelTimer,
                    float travelRatio,
+                   bool showPlatformTimer,
+                   float platformRatio,
                    int aliveEnemyCount,
                    int maxEnemyCount);
 
