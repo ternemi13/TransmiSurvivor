@@ -50,6 +50,7 @@ private:
     void update();
 
     void render();
+    void renderWagonExitDoorHighlights();
 
     void setupRooms();
 

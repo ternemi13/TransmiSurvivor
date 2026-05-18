@@ -535,6 +535,7 @@ void Game::render()
     m_window.clear(sf::Color::Black);
     m_window.setView(m_view);
     m_currentRoom->render(m_window);
+    renderWagonExitDoorHighlights();
 
     if (m_currentRoom->getRoomType() == Room::Wagon)
     {
@@ -567,4 +568,33 @@ void Game::render()
     );
 
     m_window.display();
+}
+
+void Game::renderWagonExitDoorHighlights()
+{
+    if (m_currentRoom->getRoomType() != Room::Wagon ||
+        m_wagonTravelTimer > 0.0f ||
+        !areWagonEnemiesDefeated())
+    {
+        return;
+    }
+
+    for (int wagonDoorIndex = 0; wagonDoorIndex < WAGON_DOOR_COUNT; wagonDoorIndex++)
+    {
+        const sf::FloatRect doorArea = m_wagonExitDoorAreas[wagonDoorIndex];
+        sf::RectangleShape glow(sf::Vector2f(
+            doorArea.width + 28.0f,
+            doorArea.height + 24.0f
+        ));
+        glow.setPosition(doorArea.left - 14.0f, doorArea.top - 12.0f);
+        glow.setFillColor(sf::Color(50, 255, 90, 55));
+        glow.setOutlineThickness(3.0f);
+        glow.setOutlineColor(sf::Color(90, 255, 120, 230));
+        m_window.draw(glow);
+
+        sf::RectangleShape innerGlow(sf::Vector2f(doorArea.width, doorArea.height));
+        innerGlow.setPosition(doorArea.left, doorArea.top);
+        innerGlow.setFillColor(sf::Color(120, 255, 150, 95));
+        m_window.draw(innerGlow);
+    }
 }
